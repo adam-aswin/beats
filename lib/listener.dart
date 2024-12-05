@@ -12,27 +12,29 @@ class Listenerpage extends StatefulWidget {
 
 class _ListenerpageState extends State<Listenerpage>
     with TickerProviderStateMixin {
-  late final AnimationController _controller;
-  AnimationController? _controller1;
-  bool isIcon = false;
+  late final AnimationController _controller =
+      AnimationController(vsync: this, duration: Duration(seconds: 5))
+        ..repeat();
+  late final AnimationController _controller1 = AnimationController(
+    vsync: this,
+    duration: Duration(milliseconds: 300),
+  );
+  bool isIcon = true;
+  bool isDisc = false;
+  bool isfav = false;
+  bool isRepeat = false;
+  bool isShuffle = false;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: Duration(seconds: 5))
-          ..repeat();
-    _controller1 = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 500),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // extendBodyBehindAppBar: true,
-      backgroundColor: const Color.fromARGB(255, 1, 7, 14),
+      extendBodyBehindAppBar: true,
+      // backgroundColor: const Color.fromARGB(255, 1, 7, 14),
       appBar: AppBar(
         iconTheme: IconThemeData(
           color: const Color.fromARGB(239, 255, 255, 255),
@@ -48,7 +50,8 @@ class _ListenerpageState extends State<Listenerpage>
         leading: IconButton(
           onPressed: () {},
           icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
+            Icons.keyboard_arrow_down_rounded,
+            size: 35,
           ),
         ),
         actions: [
@@ -65,11 +68,20 @@ class _ListenerpageState extends State<Listenerpage>
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        // padding: EdgeInsets.all(10),s
+        padding: EdgeInsets.only(top: 80),
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+          colors: [
+            const Color.fromARGB(255, 1, 7, 14),
+            const Color.fromARGB(255, 4, 24, 54)
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        )),
         child: Column(
           children: [
             Container(
-              height: 450,
+              height: 430,
               width: MediaQuery.of(context).size.width,
               padding: EdgeInsets.only(top: 80),
               // color: Colors.red,
@@ -80,44 +92,31 @@ class _ListenerpageState extends State<Listenerpage>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        isIcon
-                            ? Container(
-                                height: 250,
-                                width: 250,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  // color: const Color.fromARGB(255, 24, 24, 24),
-                                ),
-                                child: ClipOval(
-                                  child: Image.asset(
-                                    "./images/Music-Streaming-Wars.webp",
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              )
-                            : AnimatedBuilder(
-                                animation: _controller,
-                                builder: (context, child) {
-                                  return Transform.rotate(
-                                    angle: _controller.value * 2 * math.pi,
-                                    child: child,
-                                  );
-                                },
-                                child: Container(
-                                  height: 250,
-                                  width: 250,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    // color: const Color.fromARGB(255, 24, 24, 24),
-                                  ),
-                                  child: ClipOval(
-                                    child: Image.asset(
-                                      "./images/Music-Streaming-Wars.webp",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
+                        AnimatedBuilder(
+                          animation: _controller,
+                          builder: (context, child) {
+                            return Transform.rotate(
+                              angle: isIcon
+                                  ? _controller.value * 0 * math.pi
+                                  : _controller.value * 2 * math.pi,
+                              child: child,
+                            );
+                          },
+                          child: Container(
+                            height: 250,
+                            width: 250,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              // color: const Color.fromARGB(255, 24, 24, 24),
+                            ),
+                            child: ClipOval(
+                              child: Image.asset(
+                                "./images/Music-Streaming-Wars.webp",
+                                fit: BoxFit.cover,
                               ),
+                            ),
+                          ),
+                        ),
                         SizedBox(
                           height: 10,
                         ),
@@ -160,12 +159,12 @@ class _ListenerpageState extends State<Listenerpage>
             ),
             Container(
               height: 5,
-              width: MediaQuery.of(context).size.width * .8,
+              width: MediaQuery.of(context).size.width * .85,
               color: Colors.white12,
             ),
             Container(
               // height: 5,
-              width: MediaQuery.of(context).size.width * .8,
+              width: MediaQuery.of(context).size.width * .85,
               // color: Colors.white12,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -186,35 +185,53 @@ class _ListenerpageState extends State<Listenerpage>
               ),
             ),
             SizedBox(
-              height: 10,
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.favorite_border,
-                size: 25,
-                color: const Color.fromARGB(239, 255, 255, 255),
-              ),
+              height: 15,
             ),
             Container(
-              width: MediaQuery.of(context).size.width * .75,
+              width: MediaQuery.of(context).size.width * .8,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        isShuffle = !isShuffle;
+                      });
+                    },
                     icon: Icon(
                       Icons.shuffle,
                       size: 25,
-                      color: const Color.fromARGB(234, 255, 255, 255),
+                      color: isShuffle
+                          ? Colors.green
+                          : const Color.fromARGB(234, 255, 255, 255),
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        isfav = !isfav;
+                      });
+                    },
+                    icon: Icon(
+                      isfav ? Icons.favorite : Icons.favorite_border,
+                      size: 27,
+                      color: isfav
+                          ? Colors.red[900]
+                          : const Color.fromARGB(239, 255, 255, 255),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        isRepeat = !isRepeat;
+                      });
+                    },
                     icon: Icon(
                       Icons.repeat,
                       size: 25,
-                      color: const Color.fromARGB(234, 255, 255, 255),
+                      color: isRepeat
+                          ? Colors.green
+                          : const Color.fromARGB(234, 255, 255, 255),
                     ),
                   ),
                 ],
@@ -224,7 +241,7 @@ class _ListenerpageState extends State<Listenerpage>
               height: 20,
             ),
             Container(
-              width: MediaQuery.of(context).size.width * .8,
+              width: MediaQuery.of(context).size.width * .85,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -246,16 +263,17 @@ class _ListenerpageState extends State<Listenerpage>
                     onPressed: () {
                       setState(() {
                         isIcon = !isIcon;
-                        _controller1!.forward(from: 0);
+
+                        isIcon
+                            ? _controller1.reverse()
+                            : _controller1.forward();
                       });
                     },
                     icon: AnimatedIcon(
-                      icon: isIcon
-                          ? AnimatedIcons.pause_play
-                          : AnimatedIcons.play_pause,
+                      icon: AnimatedIcons.play_pause,
                       color: Colors.black,
                       size: 30,
-                      progress: _controller1!,
+                      progress: _controller1,
                     ),
                   ),
                   IconButton(
