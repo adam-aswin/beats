@@ -1,3 +1,4 @@
+import 'package:beats/listener.dart';
 import 'package:flutter/material.dart';
 
 class Homepage extends StatefulWidget {
@@ -12,6 +13,7 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text(
@@ -46,11 +48,11 @@ class _HomepageState extends State<Homepage> {
         child: Column(
           children: [
             Container(
-              width: MediaQuery.of(context).size.width * .8,
+              width: MediaQuery.of(context).size.width * .9,
               height: 50,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: const Color.fromARGB(255, 3, 16, 34),
+                borderRadius: BorderRadius.circular(10),
+                color: const Color.fromARGB(255, 3, 17, 37),
                 boxShadow: [
                   BoxShadow(
                     blurRadius: 5,
@@ -112,16 +114,16 @@ class _HomepageState extends State<Homepage> {
                 child: ListView.builder(
                   padding: EdgeInsets.all(10),
                   scrollDirection: Axis.horizontal,
-                  itemCount: 8,
+                  itemCount: 1,
                   itemBuilder: (context, index) {
                     return Container(
                       margin: EdgeInsets.only(right: 10),
                       padding: EdgeInsets.all(10),
-                      width: 130,
+                      width: 140,
                       height: 150,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        color: const Color.fromARGB(255, 3, 16, 34),
+                        color: const Color.fromARGB(255, 3, 17, 37),
                         boxShadow: [
                           BoxShadow(
                             blurRadius: 5,
@@ -133,13 +135,31 @@ class _HomepageState extends State<Homepage> {
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
                             width: double.infinity,
-                            height: 100,
+                            height: 110,
                             decoration: BoxDecoration(
                               color: Colors.grey[900],
                               borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(
+                                "./images/fav.webp",
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "Favourite Tracks",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
                             ),
                           )
                         ],
@@ -170,6 +190,76 @@ class _HomepageState extends State<Homepage> {
                 ],
               ),
             ),
+            Container(
+              child: Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.all(10),
+                  itemCount: 2,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      height: 72,
+                      width: MediaQuery.of(context).size.width * .9,
+                      margin: EdgeInsets.only(left: 5, right: 5, bottom: 10),
+                      // padding: EdgeInsets.only(top: 6, bottom: 6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: const Color.fromARGB(255, 3, 17, 37),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 5,
+                            spreadRadius: 0,
+                            offset: Offset(5, 5),
+                            color: Colors.black54,
+                          ),
+                        ],
+                      ),
+                      child: ListTile(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Listenerpage(),
+                              ));
+                        },
+                        leading: Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[900],
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: Image.asset(
+                              "./images/Music-Streaming-Wars.webp",
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        title: Text(
+                          "Music Name",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          "Artist",
+                          style: TextStyle(color: Colors.white54),
+                        ),
+                        trailing: IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.play_arrow,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            )
           ],
         ),
       ),

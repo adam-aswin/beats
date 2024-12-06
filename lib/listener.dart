@@ -12,13 +12,9 @@ class Listenerpage extends StatefulWidget {
 
 class _ListenerpageState extends State<Listenerpage>
     with TickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: Duration(seconds: 5))
-        ..repeat();
-  late final AnimationController _controller1 = AnimationController(
-    vsync: this,
-    duration: Duration(milliseconds: 300),
-  );
+  late AnimationController _controller;
+  late AnimationController _controller1;
+  late Animation<double> _animation;
   bool isIcon = true;
   bool isDisc = false;
   bool isfav = false;
@@ -28,13 +24,24 @@ class _ListenerpageState extends State<Listenerpage>
   void initState() {
     // TODO: implement initState
     super.initState();
+    _controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 5));
+    _controller1 = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+    _animation = Tween<double>(
+      begin: 0.0,
+      end: math.pi * 2,
+    ).animate(_controller);
+    _controller.repeat();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      // backgroundColor: const Color.fromARGB(255, 1, 7, 14),
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         iconTheme: IconThemeData(
           color: const Color.fromARGB(239, 255, 255, 255),
@@ -47,13 +54,13 @@ class _ListenerpageState extends State<Listenerpage>
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: IconButton(
-          onPressed: () {},
-          icon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            size: 35,
-          ),
-        ),
+        // leading: IconButton(
+        //   onPressed: () {},
+        //   icon: Icon(
+        //     Icons.keyboard_arrow_down_rounded,
+        //     size: 35,
+        //   ),
+        // ),
         actions: [
           IconButton(
             onPressed: () {},
@@ -83,44 +90,34 @@ class _ListenerpageState extends State<Listenerpage>
             Container(
               height: 430,
               width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.only(top: 80),
+              // padding: EdgeInsets.only(top: 50),
               // color: Colors.red,
               child: Stack(
                 children: [
                   Align(
                     alignment: Alignment.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        AnimatedBuilder(
-                          animation: _controller,
-                          builder: (context, child) {
-                            return Transform.rotate(
-                              angle: isIcon
-                                  ? _controller.value * 0 * math.pi
-                                  : _controller.value * 2 * math.pi,
-                              child: child,
-                            );
-                          },
-                          child: Container(
-                            height: 250,
-                            width: 250,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              // color: const Color.fromARGB(255, 24, 24, 24),
-                            ),
-                            child: ClipOval(
-                              child: Image.asset(
-                                "./images/Music-Streaming-Wars.webp",
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+                    child: AnimatedBuilder(
+                      animation: _animation,
+                      builder: (context, child) {
+                        return Transform.rotate(
+                          angle: isIcon ? 0 : _animation.value,
+                          child: child,
+                        );
+                      },
+                      child: Container(
+                        height: 250,
+                        width: 250,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          // color: const Color.fromARGB(255, 24, 24, 24),
+                        ),
+                        child: ClipOval(
+                          child: Image.asset(
+                            "./images/Music-Streaming-Wars.webp",
+                            fit: BoxFit.cover,
                           ),
                         ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                   Align(
@@ -291,5 +288,12 @@ class _ListenerpageState extends State<Listenerpage>
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Dispose of the animation controller when the widget is disposed
+    _controller.dispose();
+    super.dispose();
   }
 }
