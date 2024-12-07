@@ -4,6 +4,7 @@ import 'package:beats/listener.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -14,20 +15,49 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   final _audioPlayer = AudioPlayer();
+  List<FileSystemEntity> _musicFiles = [];
 
-  void playAudio() async {
-    try {
-      _audioPlayer.setLoopMode(LoopMode.one);
-      final result =
-          await FilePicker.platform.pickFiles(allowedExtensions: ['mp3']);
-      if (result != null) {
-        final file = File(result.files.single.path!);
-        _audioPlayer.setUrl(file.path);
-      }
-      // await _audioPlayer.setFilePath()
-    } catch (e) {
-      print(e);
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchMusic();
+  }
+
+  Future<void> requstPermission() async {
+    var status = await Permission.storage.request();
+    if (status.isGranted ||
+        await Permission.manageExternalStorage.request().isGranted) {
+      print("Permission granted");
+    } else {
+      print("Permission Denied");
     }
+  }
+
+  Future<List<FileSystemEntity>> getMusicFiles() async {
+    final directory = Directory('/storage/emulated/0/Music');
+    if (await directory.exists()) {
+      return directory.listSync();
+    } else {
+      return [];
+    }
+  }
+
+  Future<void> playAudio(String filePath) async {
+    try {
+      await _audioPlayer.setFilePath(filePath);
+      await _audioPlayer.play();
+    } catch (e) {
+      print("Error occured :$e");
+    }
+  }
+
+  Future<void> fetchMusic() async {
+    await requstPermission();
+    final files = await getMusicFiles();
+    setState(() {
+      _musicFiles = files;
+    });
   }
 
   @override
@@ -114,91 +144,6 @@ class _HomepageState extends State<Homepage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    "Playlist",
-                    style: TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.underline,
-                      // decorationColor: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              height: 200,
-              child: Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.all(10),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 1,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: EdgeInsets.only(right: 10),
-                      padding: EdgeInsets.all(10),
-                      width: 140,
-                      height: 150,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: const Color.fromARGB(255, 3, 17, 37),
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 5,
-                            spreadRadius: 0,
-                            offset: Offset(5, 5),
-                            color: Colors.black54,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height: 110,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[900],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.asset(
-                                "./images/fav.webp",
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            "Favourite Tracks",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              padding: EdgeInsets.only(left: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
                     "All songs",
                     style: TextStyle(
                       color: Colors.white,
@@ -215,8 +160,10 @@ class _HomepageState extends State<Homepage> {
               child: Expanded(
                 child: ListView.builder(
                   padding: EdgeInsets.all(10),
-                  itemCount: 2,
+                  itemCount: _musicFiles.length,
                   itemBuilder: (context, index) {
+                    final file = _musicFiles[index];
+                    print(_musicFiles);
                     return Container(
                       height: 72,
                       width: MediaQuery.of(context).size.width * .9,
@@ -236,12 +183,10 @@ class _HomepageState extends State<Homepage> {
                       ),
                       child: ListTile(
                         onTap: () {
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //       builder: (context) => Listenerpage(),
-                          //     ));
-                          playAudio();
+                          playAudio(file.path);
+                        },
+                        onLongPress: () {
+                          _audioPlayer.pause();
                         },
                         leading: Container(
                           height: 50,
@@ -259,14 +204,24 @@ class _HomepageState extends State<Homepage> {
                           ),
                         ),
                         title: Text(
-                          "Music Name",
+                          file.path.split('/').last.split('-').first,
                           style: TextStyle(
                             color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                            // fontWeight: FontWeight.bold,
+                            fontSize: 14,
                           ),
                         ),
                         subtitle: Text(
-                          "Artist",
+                          file.path.split('/').last.split('-').last.substring(
+                                0,
+                                file.path
+                                        .split('/')
+                                        .last
+                                        .split('-')
+                                        .last
+                                        .length -
+                                    4,
+                              ),
                           style: TextStyle(color: Colors.white54),
                         ),
                         trailing: IconButton(
