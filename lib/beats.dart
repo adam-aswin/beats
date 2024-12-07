@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:beats/listener.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -9,6 +13,23 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  final _audioPlayer = AudioPlayer();
+
+  void playAudio() async {
+    try {
+      _audioPlayer.setLoopMode(LoopMode.one);
+      final result =
+          await FilePicker.platform.pickFiles(allowedExtensions: ['mp3']);
+      if (result != null) {
+        final file = File(result.files.single.path!);
+        _audioPlayer.setUrl(file.path);
+      }
+      // await _audioPlayer.setFilePath()
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -215,11 +236,12 @@ class _HomepageState extends State<Homepage> {
                       ),
                       child: ListTile(
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Listenerpage(),
-                              ));
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //       builder: (context) => Listenerpage(),
+                          //     ));
+                          playAudio();
                         },
                         leading: Container(
                           height: 50,
