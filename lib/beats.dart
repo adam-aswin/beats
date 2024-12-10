@@ -16,12 +16,18 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   final _audioPlayer = AudioPlayer();
   List<FileSystemEntity> _musicFiles = [];
+  // int currentIndex = 0;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     fetchMusic();
+    _audioPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        playNext();
+      }
+    });
   }
 
   Future<void> requstPermission() async {
@@ -49,6 +55,39 @@ class _HomepageState extends State<Homepage> {
       await _audioPlayer.play();
     } catch (e) {
       print("Error occured :$e");
+    }
+  }
+
+  void playNext() async {
+    int currentIndex = _audioPlayer.currentIndex!;
+    print(
+        "======================================================================");
+    print(_audioPlayer.sequenceState!.currentSource);
+    print(
+        "======================================================================");
+
+    if (currentIndex < _musicFiles.length - 1) {
+      print(
+          "======================================================================");
+      print(_audioPlayer.currentIndex!);
+      print(
+          "======================================================================");
+      setState(() {
+        currentIndex++;
+      });
+      await playAudio(_musicFiles[currentIndex].path);
+    } else {
+      print("No more songs available");
+    }
+  }
+
+  void playPrevious() async {
+    int currentIndex = _audioPlayer.currentIndex!;
+    if (currentIndex > 0) {
+      setState(() {
+        currentIndex--;
+      });
+      await playAudio(_musicFiles[currentIndex].path);
     }
   }
 
@@ -160,7 +199,7 @@ class _HomepageState extends State<Homepage> {
               child: Expanded(
                 child: ListView.builder(
                   padding: EdgeInsets.all(10),
-                  itemCount: _musicFiles.length,
+                  itemCount: _musicFiles.length - 1,
                   itemBuilder: (context, index) {
                     final file = _musicFiles[index];
                     print(_musicFiles);
@@ -183,7 +222,11 @@ class _HomepageState extends State<Homepage> {
                       ),
                       child: ListTile(
                         onTap: () {
-                          playAudio(file.path);
+                          Navigator.pushNamed(
+                            context,
+                            "/music",
+                            arguments: file.path,
+                          );
                         },
                         onLongPress: () {
                           _audioPlayer.pause();
@@ -225,7 +268,9 @@ class _HomepageState extends State<Homepage> {
                           style: TextStyle(color: Colors.white54),
                         ),
                         trailing: IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            playNext();
+                          },
                           icon: Icon(
                             Icons.play_arrow,
                             color: Colors.white,

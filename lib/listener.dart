@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'dart:math' as math;
 
 import 'package:lottie/lottie.dart';
@@ -15,11 +16,13 @@ class _ListenerpageState extends State<Listenerpage>
   late AnimationController _controller;
   late AnimationController _controller1;
   late Animation<double> _animation;
-  bool isIcon = true;
+  bool isIcon = false;
   bool isDisc = false;
   bool isfav = false;
   bool isRepeat = false;
   bool isShuffle = false;
+  final _audioPlayer = AudioPlayer();
+  String? path;
   @override
   void initState() {
     // TODO: implement initState
@@ -35,10 +38,30 @@ class _ListenerpageState extends State<Listenerpage>
       end: math.pi * 2,
     ).animate(_controller);
     _controller.repeat();
+    print("====================");
+    Future.delayed(
+      Duration(
+        milliseconds: 10,
+      ),
+      () {
+        playAudio(path!);
+      },
+    );
+    print("====================");
+  }
+
+  Future<void> playAudio(String filePath) async {
+    try {
+      await _audioPlayer.setFilePath(filePath);
+      await _audioPlayer.play();
+    } catch (e) {
+      print("Error occured :$e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    path = ModalRoute.of(context)?.settings.arguments as String;
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
@@ -136,7 +159,7 @@ class _ListenerpageState extends State<Listenerpage>
               ),
             ),
             Text(
-              "Music Name",
+              path!.split('/').last.split('-').first,
               style: TextStyle(
                 color: const Color.fromARGB(239, 255, 255, 255),
                 fontSize: 20,
@@ -144,7 +167,10 @@ class _ListenerpageState extends State<Listenerpage>
               ),
             ),
             Text(
-              "Artist Name",
+              path!.split('/').last.split('-').last.substring(
+                    0,
+                    path!.split('/').last.split('-').last.length - 4,
+                  ),
               style: TextStyle(
                 color: Colors.white54,
                 fontSize: 15,
@@ -262,12 +288,13 @@ class _ListenerpageState extends State<Listenerpage>
                         isIcon = !isIcon;
 
                         isIcon
-                            ? _controller1.reverse()
-                            : _controller1.forward();
+                            ? _controller1.forward()
+                            : _controller1.reverse();
+                        isIcon ? _audioPlayer.pause() : _audioPlayer.play();
                       });
                     },
                     icon: AnimatedIcon(
-                      icon: AnimatedIcons.play_pause,
+                      icon: AnimatedIcons.pause_play,
                       color: Colors.black,
                       size: 30,
                       progress: _controller1,
