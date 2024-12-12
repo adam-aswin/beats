@@ -1,0 +1,1 @@
+// class Animatedprovider with tick{}

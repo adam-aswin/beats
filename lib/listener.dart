@@ -17,32 +17,24 @@ class Listenerpage extends StatefulWidget {
 
 class _ListenerpageState extends State<Listenerpage>
     with TickerProviderStateMixin {
-  Duration _duration = Duration.zero;
-  Duration _position = Duration.zero;
   late AnimationController _controller;
   late AnimationController _controller1;
   late Animation<double> _animation;
-  bool isRestart = false;
-  bool isIcon = false;
-  bool isDisc = false;
-  bool isfav = false;
-  bool isRepeat = false;
-  bool isShuffle = false;
-  final _audioPlayer = AudioPlayer();
+
   String? path;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _audioPlayer.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed) {
-        setState(() {
-          isIcon = true;
-          // _controller1.reverse();
-          isRestart = true;
-        });
-      }
-    });
+    // _audioPlayer.playerStateStream.listen((state) {
+    //   if (state.processingState == ProcessingState.completed) {
+    //     setState(() {
+    //       isIcon = true;
+    //       // _controller1.reverse();
+    //       isRestart = true;
+    //     });
+    //   }
+    // });
     _controller =
         AnimationController(vsync: this, duration: Duration(seconds: 5));
     _controller1 = AnimationController(
@@ -64,53 +56,45 @@ class _ListenerpageState extends State<Listenerpage>
       },
     );
     print("====================");
-    _audioPlayer.durationStream.listen((duration) {
-      if (duration != null) {
-        setState(() {
-          _duration = duration;
-        });
-      }
-    });
-
-    _audioPlayer.positionStream.listen((position) {
-      try {
-        if (mounted) {
-          setState(() {
-            _position = position;
-          });
-        }
-      } catch (e) {
-        print(
-            "======================================================================");
-        print(e);
-        print(
-            "======================================================================");
-      }
-    });
+    // data();
   }
 
-  void restartSong() {
-    _audioPlayer.seek(Duration.zero);
-    _audioPlayer.play();
-    setState(() {
-      isRestart = false;
-      isIcon = false;
-    });
-  }
-
-  Future<void> playAudio(String filePath) async {
-    try {
-      await _audioPlayer.setFilePath(filePath);
-      await _audioPlayer.play();
-    } catch (e) {
-      print("Error occured :$e");
+  void playNext() async {
+    var next = Provider.of<Providerstate>(context, listen: false);
+    if (next.currentIndex < next.musicFiles.length) {
+      setState(() {
+        next.currentIndex += 1;
+      });
+      print("==========================================================");
+      // print(next.musicFiles[]);
+      await next.playAudio(next.musicFiles[next.currentIndex].path);
+    } else {
+      print("No more songs available");
     }
   }
 
-  void _seek(double value) {
-    final pos = Duration(seconds: value.toInt());
-    _audioPlayer.seek(pos);
+  void playPrev() async {
+    var next = Provider.of<Providerstate>(context, listen: false);
+    if (next.currentIndex < next.musicFiles.length) {
+      setState(() {
+        next.currentIndex -= 1;
+      });
+      print("==========================================================");
+      // print(next.musicFiles[]);
+      await next.playAudio(next.musicFiles[next.currentIndex].path);
+    } else {
+      print("No more songs available");
+    }
   }
+
+  // void data() {
+  //   var data = Provider.of<Providerstate>(context, listen: false);
+  //   data.audioPlayer.playerStateStream.listen((state) {
+  //     if (state.processingState == ProcessingState.completed) {
+  //       playNext();
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -308,7 +292,7 @@ class _ListenerpageState extends State<Listenerpage>
                         });
                       },
                       icon: Icon(
-                        isfav ? Icons.favorite : Icons.favorite_border,
+                        value.isfav ? Icons.favorite : Icons.favorite_border,
                         size: 27,
                         color: value.isfav
                             ? Colors.red[900]
@@ -319,9 +303,9 @@ class _ListenerpageState extends State<Listenerpage>
                       onPressed: () {
                         setState(() {
                           value.isRepeat = !value.isRepeat;
-                          isRepeat
-                              ? _audioPlayer.setLoopMode(LoopMode.one)
-                              : _audioPlayer.setLoopMode(LoopMode.off);
+                          value.isRepeat
+                              ? value.audioPlayer.setLoopMode(LoopMode.one)
+                              : value.audioPlayer.setLoopMode(LoopMode.off);
                         });
                       },
                       icon: Icon(
@@ -344,57 +328,42 @@ class _ListenerpageState extends State<Listenerpage>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: playPrev,
                       icon: Icon(
                         Icons.skip_previous_rounded,
                         size: 35,
                         color: const Color.fromARGB(234, 255, 255, 255),
                       ),
                     ),
-                    value.isRestart
-                        ? IconButton(
-                            style: IconButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(239, 255, 255, 255),
-                              padding: EdgeInsets.all(
-                                18,
-                              ),
-                            ),
-                            onPressed: value.restartSong,
-                            icon: Icon(
-                              Icons.restart_alt_outlined,
-                              color: Colors.black,
-                            ),
-                          )
-                        : IconButton(
-                            style: IconButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(239, 255, 255, 255),
-                              padding: EdgeInsets.all(
-                                15,
-                              ),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                value.isIcon = !value.isIcon;
-
-                                value.isIcon
-                                    ? _controller1.forward()
-                                    : _controller1.reverse();
-                                value.isIcon
-                                    ? value.audioPlayer.pause()
-                                    : value.audioPlayer.play();
-                              });
-                            },
-                            icon: AnimatedIcon(
-                              icon: AnimatedIcons.pause_play,
-                              color: Colors.black,
-                              size: 30,
-                              progress: _controller1,
-                            ),
-                          ),
                     IconButton(
-                      onPressed: () {},
+                      style: IconButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromARGB(239, 255, 255, 255),
+                        padding: EdgeInsets.all(
+                          15,
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          value.isIcon = !value.isIcon;
+
+                          value.isIcon
+                              ? _controller1.forward()
+                              : _controller1.reverse();
+                          value.isIcon
+                              ? value.audioPlayer.pause()
+                              : value.audioPlayer.play();
+                        });
+                      },
+                      icon: AnimatedIcon(
+                        icon: AnimatedIcons.pause_play,
+                        color: Colors.black,
+                        size: 30,
+                        progress: _controller1,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: playNext,
                       icon: Icon(
                         Icons.skip_next_rounded,
                         size: 35,
@@ -409,13 +378,6 @@ class _ListenerpageState extends State<Listenerpage>
         ),
       ),
     );
-  }
-
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final minutes = twoDigits(duration.inMinutes);
-    final seconds = twoDigits(duration.inSeconds.remainder(60));
-    return "$minutes:$seconds";
   }
 
   @override

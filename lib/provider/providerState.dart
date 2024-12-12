@@ -9,9 +9,11 @@ class Providerstate extends ChangeNotifier {
   List<FileSystemEntity> musicFiles = [];
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
+  AnimationController? controller1;
   int currentIndex = 0;
   bool showMiniPlayer = false;
-  bool isRestart = false;
+
+  // bool isRestart = false;
   bool isIcon = false;
   bool isDisc = false;
   bool isfav = false;
@@ -37,14 +39,6 @@ class Providerstate extends ChangeNotifier {
   //   }
   // }
   void duPos() {
-    audioPlayer.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed) {
-        isIcon = true;
-        // _controller1.reverse();
-        isRestart = true;
-        notifyListeners();
-      }
-    });
     audioPlayer.durationStream.listen((pduration) {
       if (pduration != null) {
         duration = pduration;
@@ -66,13 +60,13 @@ class Providerstate extends ChangeNotifier {
     });
   }
 
-  void restartSong() {
-    audioPlayer.seek(Duration.zero);
-    audioPlayer.play();
-    isRestart = false;
-    isIcon = false;
-    notifyListeners();
-  }
+  // void restartSong() {
+  //   audioPlayer.seek(Duration.zero);
+  //   audioPlayer.play();
+  //   isRestart = false;
+  //   isIcon = false;
+  //   notifyListeners();
+  // }
 
   void seek(double value) {
     final pos = Duration(seconds: value.toInt());
@@ -83,7 +77,9 @@ class Providerstate extends ChangeNotifier {
   Future<void> playAudio(String filePath) async {
     try {
       await audioPlayer.setFilePath(filePath);
+      notifyListeners();
       await audioPlayer.play();
+      notifyListeners();
     } catch (e) {
       print("Error occured :$e");
     }
@@ -98,15 +94,39 @@ class Providerstate extends ChangeNotifier {
     return "$minutes:$seconds";
   }
 
-  // Future<void> fetchMusic() async {
-  //   await requstPermission();
-  //   final files = await getMusicFiles();
-  //   _musicFiles = files;
-  // }
+  Future<void> requstPermission() async {
+    var status = await Permission.storage.request();
+    if (status.isGranted ||
+        await Permission.manageExternalStorage.request().isGranted) {
+      print("Permission granted");
+    } else {
+      print("Permission Denied");
+    }
+  }
+
+  Future<List<FileSystemEntity>> getMusicFiles() async {
+    final directory = Directory('/storage/emulated/0/Music');
+    if (await directory.exists()) {
+      return directory
+          .listSync()
+          .where((file) => file.path.endsWith(".m4a"))
+          .map((file) => File(file.path))
+          .toList();
+    } else {
+      return [];
+    }
+  }
+
+  Future<void> fetchMusic() async {
+    await requstPermission();
+    final files = await getMusicFiles();
+    notifyListeners();
+    musicFiles = files;
+    // notifyListeners();
+  }
+
   @override
   void dispose() {
-    // _controller.dispose();
-    // _controller1.dispose();
     audioPlayer.dispose();
     super.dispose();
   }
