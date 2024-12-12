@@ -1,15 +1,18 @@
 // import 'package:beats/homepage.dart';
 import 'package:beats/beats.dart';
 import 'package:beats/listener.dart';
+import 'package:beats/provider/providerState.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(
-    MaterialApp(
+  runApp(ChangeNotifierProvider(
+    create: (context) => Providerstate(),
+    child: MaterialApp(
       home: Homepage(),
       routes: {
         "/music": (context) => Listenerpage(),
       },
     ),
-  );
+  ));
 }
