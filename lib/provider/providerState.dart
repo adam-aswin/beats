@@ -12,8 +12,8 @@ class Providerstate extends ChangeNotifier {
   AnimationController? controller1;
   int currentIndex = 0;
   bool showMiniPlayer = false;
-
-  // bool isRestart = false;
+  String name = "";
+  bool isMute = false;
   bool isIcon = false;
   bool isDisc = false;
   bool isfav = false;

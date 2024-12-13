@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:beats/beats.dart';
+import 'package:beats/bottomNavigation.dart';
 import 'package:beats/provider/providerState.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -21,20 +23,11 @@ class _ListenerpageState extends State<Listenerpage>
   late AnimationController _controller1;
   late Animation<double> _animation;
 
-  String? path;
+  // String? path;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // _audioPlayer.playerStateStream.listen((state) {
-    //   if (state.processingState == ProcessingState.completed) {
-    //     setState(() {
-    //       isIcon = true;
-    //       // _controller1.reverse();
-    //       isRestart = true;
-    //     });
-    //   }
-    // });
     _controller =
         AnimationController(vsync: this, duration: Duration(seconds: 5));
     _controller1 = AnimationController(
@@ -56,7 +49,7 @@ class _ListenerpageState extends State<Listenerpage>
       },
     );
     print("====================");
-    // data();
+    data();
   }
 
   void playNext() async {
@@ -64,6 +57,7 @@ class _ListenerpageState extends State<Listenerpage>
     if (next.currentIndex < next.musicFiles.length) {
       setState(() {
         next.currentIndex += 1;
+        next.name = next.musicFiles[next.currentIndex].path;
       });
       print("==========================================================");
       // print(next.musicFiles[]);
@@ -78,6 +72,7 @@ class _ListenerpageState extends State<Listenerpage>
     if (next.currentIndex < next.musicFiles.length) {
       setState(() {
         next.currentIndex -= 1;
+        next.name = next.musicFiles[next.currentIndex].path;
       });
       print("==========================================================");
       // print(next.musicFiles[]);
@@ -87,18 +82,33 @@ class _ListenerpageState extends State<Listenerpage>
     }
   }
 
-  // void data() {
-  //   var data = Provider.of<Providerstate>(context, listen: false);
-  //   data.audioPlayer.playerStateStream.listen((state) {
-  //     if (state.processingState == ProcessingState.completed) {
-  //       playNext();
-  //     }
-  //   });
-  // }
+  void shuffle() async {
+    var next = Provider.of<Providerstate>(context, listen: false);
+    if (next.currentIndex < next.musicFiles.length) {
+      setState(() {
+        next.currentIndex -= 1;
+        next.name = next.musicFiles[next.currentIndex].path;
+      });
+      print("==========================================================");
+      // print(next.musicFiles[]);
+      await next.playAudio(next.musicFiles[next.currentIndex].path);
+    } else {
+      print("No more songs available");
+    }
+  }
+
+  void data() {
+    var data = Provider.of<Providerstate>(context, listen: false);
+    if (data.isIcon == true) {
+      setState(() {
+        _controller1.forward();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    path = ModalRoute.of(context)?.settings.arguments as String;
+    // path = ModalRoute.of(context)?.settings.arguments as String;
     return Consumer<Providerstate>(
       builder: (context, value, child) => Scaffold(
         extendBodyBehindAppBar: true,
@@ -107,6 +117,19 @@ class _ListenerpageState extends State<Listenerpage>
           iconTheme: IconThemeData(
             color: const Color.fromARGB(239, 255, 255, 255),
           ),
+          // leading: IconButton(
+          //   onPressed: () {
+          //     Navigator.pushAndRemoveUntil(
+          //         context,
+          //         MaterialPageRoute(
+          //           builder: (context) => Bottomnavigation(),
+          //         ),
+          //         (route) => false);
+          //   },
+          //   icon: Icon(
+          //     Icons.arrow_back_ios,
+          //   ),
+          // ),
           title: Text(
             "Now Playing",
             style: TextStyle(
@@ -124,9 +147,14 @@ class _ListenerpageState extends State<Listenerpage>
           // ),
           actions: [
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  value.isMute = !value.isMute;
+                  value.audioPlayer.setVolume(value.isMute ? 0.0 : 1.0);
+                });
+              },
               icon: Icon(
-                Icons.more_horiz,
+                value.isMute ? Icons.volume_off : Icons.volume_up,
               ),
             ),
           ],
@@ -197,7 +225,7 @@ class _ListenerpageState extends State<Listenerpage>
                 ),
               ),
               Text(
-                path!.split('/').last.split('-').first,
+                value.name.split('/').last.split('-').first,
                 style: TextStyle(
                   color: const Color.fromARGB(239, 255, 255, 255),
                   fontSize: 20,
@@ -205,9 +233,9 @@ class _ListenerpageState extends State<Listenerpage>
                 ),
               ),
               Text(
-                path!.split('/').last.split('-').last.substring(
+                value.name.split('/').last.split('-').last.substring(
                       0,
-                      path!.split('/').last.split('-').last.length - 4,
+                      value.name.split('/').last.split('-').last.length - 4,
                     ),
                 style: TextStyle(
                   color: Colors.white54,
@@ -275,6 +303,10 @@ class _ListenerpageState extends State<Listenerpage>
                       onPressed: () {
                         setState(() {
                           value.isShuffle = !value.isShuffle;
+                          value.isShuffle ? value.musicFiles.shuffle() : null;
+                          // value.isShuffle
+                          //     ? value.audioPlayer.setShuffleModeEnabled(true)
+                          //     : value.audioPlayer.setShuffleModeEnabled(false);
                         });
                       },
                       icon: Icon(
