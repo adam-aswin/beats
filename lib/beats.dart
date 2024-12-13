@@ -21,7 +21,7 @@ class _HomepageState extends State<Homepage>
   var files;
 
   int currentIndex = 0;
-  bool showMiniPlayer = false;
+  bool? showMiniPlayer;
 
   @override
   void initState() {
@@ -134,6 +134,9 @@ class _HomepageState extends State<Homepage>
                       ],
                     ),
                     child: TextField(
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
                       cursorColor: Colors.white38,
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
@@ -214,7 +217,7 @@ class _HomepageState extends State<Homepage>
                                 arguments: file.path,
                               );
                               setState(() {
-                                showMiniPlayer = true;
+                                value.showMiniPlayer = true;
 
                                 value.playAudio(file.path);
 
@@ -284,7 +287,7 @@ class _HomepageState extends State<Homepage>
                     ),
                   ),
                 ),
-                showMiniPlayer
+                value.showMiniPlayer!
                     ? Expanded(
                         flex: 0,
                         child: Container(
@@ -304,7 +307,7 @@ class _HomepageState extends State<Homepage>
                             trailing: IconButton(
                               onPressed: () {
                                 setState(() {
-                                  showMiniPlayer = false;
+                                  value.showMiniPlayer = false;
                                   value.audioPlayer.pause();
                                 });
                               },
