@@ -4,6 +4,7 @@ import 'package:beats/beats.dart';
 import 'package:beats/bottomNavigation.dart';
 import 'package:beats/provider/providerState.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:just_audio/just_audio.dart';
 import 'dart:math' as math;
 
@@ -22,6 +23,8 @@ class _ListenerpageState extends State<Listenerpage>
   late AnimationController _controller;
   late AnimationController _controller1;
   late Animation<double> _animation;
+  final _mydata = Hive.box('mydata');
+  bool isfav = false;
 
   // String? path;
   @override
@@ -225,7 +228,7 @@ class _ListenerpageState extends State<Listenerpage>
                 ),
               ),
               Text(
-                value.name.split('/').last.split('-').first,
+                value.name.split('/').last.split('-').first.trim(),
                 style: TextStyle(
                   color: const Color.fromARGB(239, 255, 255, 255),
                   fontSize: 20,
@@ -233,10 +236,16 @@ class _ListenerpageState extends State<Listenerpage>
                 ),
               ),
               Text(
-                value.name.split('/').last.split('-').last.substring(
+                value.name
+                    .split('/')
+                    .last
+                    .split('-')
+                    .last
+                    .substring(
                       0,
                       value.name.split('/').last.split('-').last.length - 4,
-                    ),
+                    )
+                    .trim(),
                 style: TextStyle(
                   color: Colors.white54,
                   fontSize: 15,
@@ -300,14 +309,11 @@ class _ListenerpageState extends State<Listenerpage>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      onPressed: () {
-                        setState(() {
-                          value.isShuffle = !value.isShuffle;
-                          value.isShuffle ? value.musicFiles.shuffle() : null;
-                          // value.isShuffle
-                          //     ? value.audioPlayer.setShuffleModeEnabled(true)
-                          //     : value.audioPlayer.setShuffleModeEnabled(false);
-                        });
+                      onPressed: () async {
+                        bool isShuffle = value.audioPlayer.shuffleModeEnabled;
+
+                        await value.audioPlayer
+                            .setShuffleModeEnabled(!isShuffle);
                       },
                       icon: Icon(
                         Icons.shuffle,
@@ -320,13 +326,33 @@ class _ListenerpageState extends State<Listenerpage>
                     IconButton(
                       onPressed: () {
                         setState(() {
-                          value.isfav = !value.isfav;
+                          isfav = !isfav;
                         });
+                        List ls = [];
+                        if (isfav) {
+                          if (_mydata.get('key') != null) {
+                            ls = _mydata.get('key');
+                            ls.add(value.name);
+                            _mydata.put('key', ls);
+                          } else {
+                            ls.add(value.name);
+                            _mydata.put('key', ls);
+                          }
+                        } else {
+                          if (_mydata.get('key') != null) {
+                            ls = _mydata.get('key');
+                            ls.remove(value.name);
+                            _mydata.put('key', ls);
+                          }
+                        }
+                        print(
+                            "==========================================================================");
+                        print(_mydata.get('key'));
                       },
                       icon: Icon(
-                        value.isfav ? Icons.favorite : Icons.favorite_border,
+                        isfav ? Icons.favorite : Icons.favorite_border,
                         size: 27,
-                        color: value.isfav
+                        color: isfav
                             ? Colors.red[900]
                             : const Color.fromARGB(239, 255, 255, 255),
                       ),

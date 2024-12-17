@@ -272,7 +272,12 @@ class _HomepageState extends State<Homepage>
                                 ),
                               ),
                               title: Text(
-                                file.path.split('/').last.split('-').first,
+                                file.path
+                                    .split('/')
+                                    .last
+                                    .split('-')
+                                    .first
+                                    .trim(),
                                 style: TextStyle(
                                   color: Colors.white,
                                   // fontWeight: FontWeight.bold,
@@ -294,7 +299,8 @@ class _HomepageState extends State<Homepage>
                                               .last
                                               .length -
                                           4,
-                                    ),
+                                    )
+                                    .trim(),
                                 style: TextStyle(color: Colors.white54),
                               ),
                               trailing: IconButton(
@@ -368,7 +374,7 @@ class _HomepageState extends State<Homepage>
                                     height: 30,
                                     child: Marquee(
                                       text:
-                                          "${value.name.split('/').last.split('-').first}(${value.name.split('/').last.split('-').last.substring(
+                                          "${value.name.split('/').last.split('-').first.trim()}(${value.name.split('/').last.split('-').last.substring(
                                                 0,
                                                 value.name
                                                         .split('/')
@@ -377,7 +383,7 @@ class _HomepageState extends State<Homepage>
                                                         .last
                                                         .length -
                                                     4,
-                                              )})",
+                                              ).trim()})",
                                       style: TextStyle(color: Colors.white),
                                       blankSpace: 20,
                                       scrollAxis: Axis.horizontal,

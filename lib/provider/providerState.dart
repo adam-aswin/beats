@@ -79,6 +79,7 @@ class Providerstate extends ChangeNotifier {
       await audioPlayer.setFilePath(filePath);
       notifyListeners();
       await audioPlayer.play();
+      audioPlayer.setShuffleModeEnabled(true);
       notifyListeners();
     } catch (e) {
       print("Error occured :$e");
