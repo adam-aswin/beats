@@ -4,6 +4,7 @@ import 'package:beats/listener.dart';
 import 'package:beats/provider/providerState.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:marquee/marquee.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -23,6 +24,7 @@ class _HomepageState extends State<Homepage>
 
   int currentIndex = 0;
   bool? showMiniPlayer;
+  final _mydata = Hive.box('mydata');
 
   @override
   void initState() {
@@ -81,6 +83,7 @@ class _HomepageState extends State<Homepage>
         playNext();
       }
     });
+    data.isfav = false;
   }
 
   void controller() {
@@ -106,11 +109,12 @@ class _HomepageState extends State<Homepage>
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           title: Text(
-            "User name",
+            "Beats",
             style: TextStyle(
               color: Colors.white,
             ),
           ),
+          centerTitle: true,
           actions: [
             IconButton(
               onPressed: () {},
@@ -250,9 +254,6 @@ class _HomepageState extends State<Homepage>
                                   value.name = file.path;
                                   value.currentIndex = index;
                                   currentIndex = index;
-                                  print(
-                                      "+++++++++++++++++++++++++++++++++++++++++++++++");
-                                  print(value.currentIndex);
                                 });
                               },
                               onLongPress: () {},

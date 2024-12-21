@@ -41,17 +41,17 @@ class _FavplaylistState extends State<Favplaylist>
     if (next.currentIndex < favourite.length - 1) {
       setState(() {
         next.currentIndex += 1;
-        next.name = favourite[next.currentIndex];
+        next.name = favourite[next.currentIndex]['name'];
       });
       print("==========================================================");
 
       print(next.name);
-      await next.playAudio(favourite[next.currentIndex]);
+      await next.playAudio(favourite[next.currentIndex]['name']);
     } else {
       print("No more songs available");
       next.currentIndex = 0;
-      next.name = favourite[next.currentIndex];
-      await next.playAudio(favourite[0]);
+      next.name = favourite[next.currentIndex]['name'];
+      await next.playAudio(favourite[0]['name']);
     }
   }
 
@@ -60,11 +60,11 @@ class _FavplaylistState extends State<Favplaylist>
     if (next.currentIndex < favourite.length) {
       setState(() {
         next.currentIndex -= 1;
-        next.name = favourite[next.currentIndex];
+        next.name = favourite[next.currentIndex]['name'];
       });
       print("==========================================================");
       // print(next.musicFiles[]);
-      await next.playAudio(favourite[next.currentIndex]);
+      await next.playAudio(favourite[next.currentIndex]['name']);
     } else {
       // next.currentIndex = 0;
 
@@ -109,7 +109,7 @@ class _FavplaylistState extends State<Favplaylist>
                 child: ListView.builder(
                   itemCount: favourite.length,
                   itemBuilder: (context, index) {
-                    String fav = favourite[index];
+                    Map fav = favourite[index];
                     return Container(
                       height: 72,
                       width: MediaQuery.of(context).size.width * .9,
@@ -136,10 +136,10 @@ class _FavplaylistState extends State<Favplaylist>
                           setState(() {
                             value.showMiniPlayer = true;
 
-                            value.playAudio(fav);
+                            value.playAudio(fav['name']);
 
                             value.duPos();
-                            value.name = fav;
+                            value.name = fav['name'];
                             value.currentIndex = index;
                             // currentIndex = index;
                             // print(
@@ -164,7 +164,7 @@ class _FavplaylistState extends State<Favplaylist>
                           ),
                         ),
                         title: Text(
-                          fav.split('/').last.split('-').first.trim(),
+                          fav['name'].split('/').last.split('-').first.trim(),
                           style: TextStyle(
                             color: Colors.white,
                             // fontWeight: FontWeight.bold,
@@ -172,14 +172,20 @@ class _FavplaylistState extends State<Favplaylist>
                           ),
                         ),
                         subtitle: Text(
-                          fav
+                          fav['name']
                               .split('/')
                               .last
                               .split('-')
                               .last
                               .substring(
                                 0,
-                                fav.split('/').last.split('-').last.length - 4,
+                                fav['name']
+                                        .split('/')
+                                        .last
+                                        .split('-')
+                                        .last
+                                        .length -
+                                    4,
                               )
                               .trim(),
                           style: TextStyle(color: Colors.white54),

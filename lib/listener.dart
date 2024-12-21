@@ -21,7 +21,9 @@ class Listenerpage extends StatefulWidget {
 class _ListenerpageState extends State<Listenerpage>
     with TickerProviderStateMixin {
   late AnimationController _controller;
+  var filepath;
   late AnimationController _controller1;
+  List fav = [];
   late Animation<double> _animation;
   final _mydata = Hive.box('mydata');
   bool isfav = false;
@@ -53,6 +55,7 @@ class _ListenerpageState extends State<Listenerpage>
     );
     print("====================");
     data();
+    favourite();
   }
 
   void playNext() async {
@@ -106,6 +109,19 @@ class _ListenerpageState extends State<Listenerpage>
       setState(() {
         _controller1.forward();
       });
+    }
+  }
+
+  void favourite() {
+    var data = Provider.of<Providerstate>(context, listen: false);
+    if (_mydata.get('key') != null) {
+      fav = _mydata.get('key');
+      for (var element in fav) {
+        if (data.name == element['name']) {
+          filepath = element;
+          isfav = element['isFav'];
+        }
+      }
     }
   }
 
@@ -328,26 +344,18 @@ class _ListenerpageState extends State<Listenerpage>
                         setState(() {
                           isfav = !isfav;
                         });
-                        List ls = [];
+
                         if (isfav) {
-                          if (_mydata.get('key') != null) {
-                            ls = _mydata.get('key');
-                            ls.add(value.name);
-                            _mydata.put('key', ls);
-                          } else {
-                            ls.add(value.name);
-                            _mydata.put('key', ls);
-                          }
+                          Map dt = {'name': value.name, 'isFav': true};
+                          fav.add(dt);
+                          _mydata.put('key', fav);
                         } else {
-                          if (_mydata.get('key') != null) {
-                            ls = _mydata.get('key');
-                            ls.remove(value.name);
-                            _mydata.put('key', ls);
-                          }
+                          print(
+                              "===========================================================");
+                          print(fav.remove(filepath));
+                          fav.remove(filepath);
+                          _mydata.put('key', fav);
                         }
-                        print(
-                            "==========================================================================");
-                        print(_mydata.get('key'));
                       },
                       icon: Icon(
                         isfav ? Icons.favorite : Icons.favorite_border,
